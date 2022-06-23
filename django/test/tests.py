@@ -1,12 +1,11 @@
 import datetime
-
 import signing
-from django.test import SimpleTestCase
+
 from django.test.utils import freeze_time
 from utils.crypto import InvalidAlgorithm
+from unittest import TestCase
 
-
-class TestSigner(SimpleTestCase):
+class TestSigner(TestCase):
     def test_signature(self):
         "signature() method should generate a signature"
         signer = signing.Signer("predictable-secret")
@@ -196,7 +195,7 @@ class TestSigner(SimpleTestCase):
 
 
 
-class TestTimestampSigner(SimpleTestCase):
+class TestTimestampSigner(TestCase):
     def test_timestamp_signer(self):
         value = "hello"
         with freeze_time(123456789):
@@ -215,7 +214,7 @@ class TestTimestampSigner(SimpleTestCase):
                 signer.unsign(ts, max_age=10)
 
 
-class TestBase62(SimpleTestCase):
+class TestBase62(TestCase):
     def test_base62(self):
         tests = [-(10**10), 10**10, 1620378259, *range(-100, 100)]
         for i in tests:

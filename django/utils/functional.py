@@ -4,6 +4,16 @@ import operator
 empty = object()
 
 
+class Promise:
+    """
+    Base class for the proxy class created in the closure of the lazy function.
+    It's used to recognize promises in code.
+    """
+
+    pass
+
+
+
 def new_method_proxy(func):
     def inner(self, *args):
         if (_wrapped := self._wrapped) is empty:
