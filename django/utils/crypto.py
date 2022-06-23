@@ -5,10 +5,7 @@ import hashlib
 import hmac
 import secrets
 
-from django.conf import settings
 from django.utils.encoding import force_bytes
-from django.utils.inspect import func_supports_parameter
-
 
 class InvalidAlgorithm(ValueError):
     """Algorithm is not supported by hashlib."""
@@ -16,7 +13,7 @@ class InvalidAlgorithm(ValueError):
     pass
 
 
-def salted_hmac(key_salt, value, secret=None, *, algorithm="sha1"):
+def salted_hmac(key_salt, value, secret, *, algorithm="sha1"):
     """
     Return the HMAC of 'value', using a key generated from key_salt and a
     secret (which defaults to settings.SECRET_KEY). Default algorithm is SHA1,
@@ -24,8 +21,6 @@ def salted_hmac(key_salt, value, secret=None, *, algorithm="sha1"):
 
     A different key_salt should be passed in for every application of HMAC.
     """
-    if secret is None:
-        secret = settings.SECRET_KEY
 
     key_salt = force_bytes(key_salt)
     secret = force_bytes(secret)
@@ -67,27 +62,17 @@ def constant_time_compare(val1, val2):
     return secrets.compare_digest(force_bytes(val1), force_bytes(val2))
 
 
-def pbkdf2(password, salt, iterations, dklen=0, digest=None):
-    """Return the hash of password using pbkdf2."""
-    if digest is None:
-        digest = hashlib.sha256
-    dklen = dklen or None
-    password = force_bytes(password)
-    salt = force_bytes(salt)
-    return hashlib.pbkdf2_hmac(digest().name, password, salt, iterations, dklen)
+# # TODO: Remove when dropping support for PY38. inspect.signature() is used to
+# # detect whether the usedforsecurity argument is available as this fix may also
+# # have been applied by downstream package maintainers to other versions in
+# # their repositories.
+# if func_supports_parameter(hashlib.md5, "usedforsecurity"):
+#     md5 = hashlib.md5
+#     new_hash = hashlib.new
+# else:
 
+#     def md5(data=b"", *, usedforsecurity=True):
+#         return hashlib.md5(data)
 
-# TODO: Remove when dropping support for PY38. inspect.signature() is used to
-# detect whether the usedforsecurity argument is available as this fix may also
-# have been applied by downstream package maintainers to other versions in
-# their repositories.
-if func_supports_parameter(hashlib.md5, "usedforsecurity"):
-    md5 = hashlib.md5
-    new_hash = hashlib.new
-else:
-
-    def md5(data=b"", *, usedforsecurity=True):
-        return hashlib.md5(data)
-
-    def new_hash(hash_algorithm, *, usedforsecurity=True):
-        return hashlib.new(hash_algorithm)
+#     def new_hash(hash_algorithm, *, usedforsecurity=True):
+#         return hashlib.new(hash_algorithm)
