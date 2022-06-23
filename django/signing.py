@@ -140,15 +140,14 @@ def loads(
     key=None,
     salt="django.core.signing",
     serializer=JSONSerializer,
-    max_age=None,
-    fallback_keys=None,
+    max_age=None
 ):
     """
     Reverse of dumps(), raise BadSignature if signature fails.
 
     The serializer is expected to accept a bytestring.
     """
-    return TimestampSigner(key, salt=salt, fallback_keys=fallback_keys).unsign_object(
+    return TimestampSigner(key, salt=salt).unsign_object(
         s,
         serializer=serializer,
         max_age=max_age,
@@ -187,9 +186,8 @@ class Signer:
         if self.sep not in signed_value:
             raise BadSignature('No "%s" found in value' % self.sep)
         value, sig = signed_value.rsplit(self.sep, 1)
-        for key in [self.key, *self.fallback_keys]:
-            if constant_time_compare(sig, self.signature(value, key)):
-                return value
+        if constant_time_compare(sig, self.signature(value, self.key)):
+            return value
         raise BadSignature('Signature "%s" does not match' % sig)
 
     def sign_object(self, obj, serializer=JSONSerializer, compress=False):

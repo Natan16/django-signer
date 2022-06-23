@@ -4,6 +4,7 @@ import signing
 from django.test.utils import freeze_time
 from utils.crypto import InvalidAlgorithm
 from unittest import TestCase
+from contextlib import contextmanager
 
 class TestSigner(TestCase):
     def test_signature(self):
@@ -177,23 +178,53 @@ class TestSigner(TestCase):
         separators = ["", "-", "abc"]
         for sep in separators:
             with self.assertRaisesMessage(ValueError, msg % sep):
-                signing.Signer(sep=sep)
+                signing.Signer('predictable-secret', sep=sep)
 
-    def test_verify_with_non_default_key(self):
-        old_signer = signing.Signer("secret")
-        new_signer = signing.Signer(
-            "newsecret", fallback_keys=["othersecret", "secret"]
+    @contextmanager
+    def _assert_raises_or_warns_cm(
+        self, func, cm_attr, expected_exception, expected_message
+    ):
+        with func(expected_exception) as cm:
+            yield cm
+        self.assertIn(expected_message, str(getattr(cm, cm_attr)))
+
+
+    def _assertFooMessage(
+        self, func, cm_attr, expected_exception, expected_message, *args, **kwargs
+    ):
+        callable_obj = None
+        if args:
+            callable_obj, *args = args
+        cm = self._assert_raises_or_warns_cm(
+            func, cm_attr, expected_exception, expected_message
         )
-        signed = old_signer.sign("abc")
-        self.assertEqual(new_signer.unsign(signed), "abc")
+        # Assertion used in context manager fashion.
+        if callable_obj is None:
+            return cm
+        # Assertion was passed a callable.
+        with cm:
+            callable_obj(*args, **kwargs)
 
-    def test_sign_unsign_multiple_keys(self):
-        """The default key is a valid verification key."""
-        signer = signing.Signer("secret", fallback_keys=["oldsecret"])
-        signed = signer.sign("abc")
-        self.assertEqual(signer.unsign(signed), "abc")
-
-
+    def assertRaisesMessage(
+        self, expected_exception, expected_message, *args, **kwargs
+    ):
+        """
+        Assert that expected_message is found in the message of a raised
+        exception.
+        Args:
+            expected_exception: Exception class expected to be raised.
+            expected_message: expected error message string value.
+            args: Function to be called and extra positional args.
+            kwargs: Extra kwargs.
+        """
+        return self._assertFooMessage(
+            self.assertRaises,
+            "exception",
+            expected_exception,
+            expected_message,
+            *args,
+            **kwargs,
+        )    
 
 class TestTimestampSigner(TestCase):
     def test_timestamp_signer(self):
