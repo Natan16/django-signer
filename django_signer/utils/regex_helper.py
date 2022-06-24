@@ -7,7 +7,7 @@ should be good enough for a large class of URLS, however.
 """
 import re
 
-from utils.functional import SimpleLazyObject
+from django_signer.utils.functional import SimpleLazyObject
 
 
 def lazy_re_compile(regex, flags=0):

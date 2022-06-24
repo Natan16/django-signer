@@ -1,7 +1,7 @@
 import datetime
-from django_signer import signing
-from test.utils import freeze_time
-from utils.crypto import InvalidAlgorithm
+from django_signer.core import signing
+from django_signer.test.utils import freeze_time
+from django_signer.utils.crypto import InvalidAlgorithm
 from unittest import TestCase
 from contextlib import contextmanager
 

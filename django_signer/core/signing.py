@@ -39,8 +39,8 @@ import json
 import time
 import zlib
 
-from utils.crypto import constant_time_compare, salted_hmac
-from utils.regex_helper import lazy_re_compile
+from django_signer.utils.crypto import constant_time_compare, salted_hmac
+from django_signer.utils.regex_helper import lazy_re_compile
 
 _SEP_UNSAFE = lazy_re_compile(r"^[A-z0-9-_=]*$")
 BASE62_ALPHABET = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz"

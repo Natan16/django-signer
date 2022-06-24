@@ -4,7 +4,7 @@ import locale
 from decimal import Decimal
 from urllib.parse import quote
 
-from utils.functional import Promise
+from django_signer.utils.functional import Promise
 
 
 class DjangoUnicodeDecodeError(UnicodeDecodeError):

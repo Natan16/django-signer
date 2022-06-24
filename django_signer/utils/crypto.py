@@ -5,7 +5,7 @@ import hashlib
 import hmac
 import secrets
 
-from utils.encoding import force_bytes
+from django_signer.utils.encoding import force_bytes
 
 class InvalidAlgorithm(ValueError):
     """Algorithm is not supported by hashlib."""
