@@ -169,10 +169,7 @@ class Signer:
                 "Unsafe Signer separator: %r (cannot be empty or consist of "
                 "only A-z0-9-_=)" % sep,
             )
-        self.salt = salt or "%s.%s" % (
-            self.__class__.__module__,
-            self.__class__.__name__,
-        )
+        self.salt = salt or 'django.core.signing.Signer'
         self.algorithm = algorithm or "sha256"
 
     def signature(self, value, key=None):

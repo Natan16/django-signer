@@ -1,7 +1,6 @@
 import datetime
-import signing
-
-from django.test.utils import freeze_time
+from django_signer import signing
+from test.utils import freeze_time
 from utils.crypto import InvalidAlgorithm
 from unittest import TestCase
 from contextlib import contextmanager
@@ -155,7 +154,7 @@ class TestSigner(TestCase):
     def test_works_with_non_ascii_keys(self):
         binary_key = b"\xe7"  # Set some binary (non-ASCII key)
 
-        s = signing.Signer(binary_key)
+        s = signing.Signer(binary_key)  # é por causa disso aqui e eu quero que gere a mesma assinatura, então preciso alterar
         self.assertEqual(
             "foo:EE4qGC5MEKyQG5msxYA0sBohAxLC0BJf8uRhemh0BGU",
             s.sign("foo"),
